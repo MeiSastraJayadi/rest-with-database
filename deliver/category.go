@@ -36,3 +36,13 @@ func (cd *CategoryDeliver) GetAll(w http.ResponseWriter, r *http.Request) {
 		cd.logger.Error("Failed to encode data", "error", err)
 	}
 }
+
+func (cd *CategoryDeliver) Create(w http.ResponseWriter, r *http.Request) {
+	cd.logger.Info("/category POST")
+	err := cd.usecase.Create(r.Body, r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		cd.logger.Error("Failed to create new category", "error", err)
+		return
+	}
+}

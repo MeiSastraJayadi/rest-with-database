@@ -17,3 +17,7 @@ func NewCategory(id int, name string) *Category {
 func (c *Categories) Length() int {
 	return len(*c)
 }
+
+func (c *Category) GetName() string {
+	return c.Name
+}

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"io"
 	"net/http"
@@ -48,4 +49,19 @@ func (c *CategoryUsecase) Fetch(w io.Writer, r *http.Request) (*appmodel.Categor
 	}
 
 	return &categories, nil
+}
+
+func (c *CategoryUsecase) Create(w io.Reader, ctx context.Context) error {
+	ctg := &appmodel.Category{}
+	decodeErr := FromJSON(w, ctg)
+	if decodeErr != nil {
+		return decodeErr
+	}
+
+	ctx = context.WithValue(ctx, repository.ContextValue{}, ctg)
+	err := c.db.CreateCategory(ctx, "category")
+	if err != nil {
+		return err
+	}
+	return nil
 }

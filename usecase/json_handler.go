@@ -5,11 +5,15 @@ import (
 	"io"
 )
 
-type WithJSON interface {
+type WithJSONEncode interface {
 	Length() int
 }
 
-func ToJSON(w io.Writer, data WithJSON) error {
+type UseJSONDecode interface {
+	GetName() string
+}
+
+func ToJSON(w io.Writer, data WithJSONEncode) error {
 	encoder := json.NewEncoder(w)
 	err := encoder.Encode(data)
 	if err != nil {
@@ -18,7 +22,7 @@ func ToJSON(w io.Writer, data WithJSON) error {
 	return nil
 }
 
-func FromJSON(r io.Reader, data *WithJSON) error {
+func FromJSON(r io.Reader, data UseJSONDecode) error {
 	decoder := json.NewDecoder(r)
 	err := decoder.Decode(data)
 	if err != nil {

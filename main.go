@@ -50,6 +50,9 @@ func main() {
 	cg := rt.Methods(http.MethodGet).Subrouter()
 	cg.HandleFunc("/category", categoryDeliver.GetAll)
 
+	cpost := rt.Methods(http.MethodPost).Subrouter()
+	cpost.HandleFunc("/category", categoryDeliver.Create)
+
 	server := http.Server{
 		Addr:         *Address,
 		Handler:      rt,
