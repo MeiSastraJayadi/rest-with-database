@@ -1,0 +1,79 @@
+package main
+
+import (
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/MeiSastraJayadi/rest-with-datatabase/deliver"
+	"github.com/MeiSastraJayadi/rest-with-datatabase/repository"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	"github.com/hashicorp/go-hclog"
+	"github.com/nicholasjackson/env"
+)
+
+var Address = env.String("ADDRESS", false, "localhost:9090", "Port Address")
+var connection = env.String("CONNECTION", false, "root:@tcp(localhost:3306)/golang-db", "Connection to database")
+var driver = env.String("DRIVER", false, "mysql", "Use mysql driver")
+var maxConnection = env.Int("MAX_CONNECTION", false, 100, "Max connection to database")
+var idleConnection = env.Int("IDLE_CONNECTION", false, 20, "Minimum idle connection")
+var idleTime = env.Duration("IDLE_DURATION", false, time.Minute, "Idle time")
+var lifeTime = env.Duration("LIFETIME", false, 30*time.Minute, "Life time of a connection")
+
+func main() {
+	l := hclog.New(
+		&hclog.LoggerOptions{
+			Name:  "e-commerce",
+			Level: hclog.LevelFromString("DEBUG"),
+		},
+	)
+	envErr := env.Parse()
+	if envErr != nil {
+		l.Error("Error when read env", "err", envErr)
+		os.Exit(1)
+	}
+	db_conn := repository.NewConnection(l, *connection, *driver, *maxConnection, *idleConnection, *idleTime, *lifeTime)
+	db, err := db_conn.CreateConnection()
+	defer db.Close()
+	if err != nil {
+		l.Error("Error when connect to database", "error", err)
+		os.Exit(1)
+	}
+	categoryDeliver := deliver.NewCategoryDeliver(db, l)
+
+	rt := mux.NewRouter()
+
+	//Category Handler
+	cg := rt.Methods(http.MethodGet).Subrouter()
+	cg.HandleFunc("/category", categoryDeliver.GetAll)
+
+	server := http.Server{
+		Addr:         *Address,
+		Handler:      rt,
+		IdleTimeout:  4 * time.Minute,
+		WriteTimeout: time.Minute,
+		ReadTimeout:  40 * time.Second,
+	}
+
+	go func() {
+		l.Info("Starting Starting...")
+		err = server.ListenAndServe()
+		if err != nil {
+			l.Error("Unable to starting server", "error", err)
+			os.Exit(1)
+		}
+	}()
+	ch := make(chan os.Signal)
+	signal.Notify(ch, os.Interrupt)
+	signal.Notify(ch, os.Kill)
+	is := <-ch
+	if is != nil {
+		l.Info("Recieved interrupt signal", "info", is)
+	}
+
+	tc, _ := context.WithTimeout(context.Background(), 30*time.Minute)
+	server.Shutdown(tc)
+}
