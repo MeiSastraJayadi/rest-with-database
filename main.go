@@ -10,6 +10,7 @@ import (
 	"github.com/MeiSastraJayadi/rest-with-datatabase/deliver"
 	"github.com/MeiSastraJayadi/rest-with-datatabase/repository"
 	_ "github.com/go-sql-driver/mysql"
+	gorillahandler "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
 	"github.com/nicholasjackson/env"
@@ -45,7 +46,6 @@ func main() {
 	categoryDeliver := deliver.NewCategoryDeliver(db, l)
 
 	rt := mux.NewRouter()
-
 	//Category Handler
 	cg := rt.Methods(http.MethodGet).Subrouter()
 	cg.HandleFunc("/category", categoryDeliver.GetAll)
@@ -53,9 +53,17 @@ func main() {
 	cpost := rt.Methods(http.MethodPost).Subrouter()
 	cpost.HandleFunc("/category", categoryDeliver.Create)
 
+	cdel := rt.Methods(http.MethodDelete).Subrouter()
+	cdel.HandleFunc("/category/{id:[0-9]+}", categoryDeliver.Delete)
+
+	cput := rt.Methods(http.MethodPut).Subrouter()
+	cput.HandleFunc("/category/{id:[0-9]+}", categoryDeliver.Update)
+
+	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
+
 	server := http.Server{
 		Addr:         *Address,
-		Handler:      rt,
+		Handler:      cors(rt),
 		IdleTimeout:  4 * time.Minute,
 		WriteTimeout: time.Minute,
 		ReadTimeout:  40 * time.Second,

@@ -6,8 +6,10 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/MeiSastraJayadi/rest-with-datatabase/model"
 	appmodel "github.com/MeiSastraJayadi/rest-with-datatabase/model"
 	"github.com/MeiSastraJayadi/rest-with-datatabase/repository"
+	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
 )
 
@@ -60,6 +62,32 @@ func (c *CategoryUsecase) Create(w io.Reader, ctx context.Context) error {
 
 	ctx = context.WithValue(ctx, repository.ContextValue{}, ctg)
 	err := c.db.CreateCategory(ctx, "category")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *CategoryUsecase) Delete(r *http.Request) error {
+	vr := mux.Vars(r)
+	ctx := r.Context()
+	id := vr["id"]
+	err := c.db.Delete(ctx, id, "category")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *CategoryUsecase) Update(r *http.Request) error {
+	ctx := r.Context()
+	data := &model.Category{}
+	err := FromJSON(r.Body, data)
+	if err != nil {
+		return err
+	}
+	ctx = context.WithValue(ctx, repository.ContextValue{}, data)
+	err = c.db.Update(ctx, "category")
 	if err != nil {
 		return err
 	}
