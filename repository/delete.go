@@ -11,7 +11,7 @@ var FailedDelete = "Failed to delete item in table"
 
 func (db *UseDB) Delete(ctx context.Context, id string, table string) error {
 	ct := context.WithValue(ctx, "id", id)
-	result, resErr := db.FetchByID(ct, "category")
+	result, resErr := db.FetchByID(ct, table)
 	if !result.Next() {
 		return errors.New(NotFoundError)
 	}
@@ -19,7 +19,14 @@ func (db *UseDB) Delete(ctx context.Context, id string, table string) error {
 	if resErr != nil {
 		return errors.New(NotFoundError)
 	}
-	ex := fmt.Sprintf("DELETE FROM %s WHERE id = %s", table, id)
+	nameId := ""
+	switch table {
+	case "owner":
+		nameId = "owner_id"
+	default:
+		nameId = "id"
+	}
+	ex := fmt.Sprintf("DELETE FROM %s WHERE %s = %s", table, nameId, id)
 	_, err := db.db.ExecContext(ctx, ex)
 	if err != nil {
 		return errors.New(FailedDelete)

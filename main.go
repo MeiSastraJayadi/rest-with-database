@@ -44,6 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 	categoryDeliver := deliver.NewCategoryDeliver(db, l)
+	ownerDeliver := deliver.NewOwnerDeliver(db, l)
 
 	rt := mux.NewRouter()
 	//Category Handler
@@ -58,6 +59,19 @@ func main() {
 
 	cput := rt.Methods(http.MethodPut).Subrouter()
 	cput.HandleFunc("/category/{id:[0-9]+}", categoryDeliver.Update)
+
+	//Owner Handler
+	og := rt.Methods(http.MethodGet).Subrouter()
+	og.HandleFunc("/owner", ownerDeliver.Fetch)
+
+	opost := rt.Methods(http.MethodPost).Subrouter()
+	opost.HandleFunc("/owner", ownerDeliver.Create)
+
+	delown := rt.Methods(http.MethodDelete).Subrouter()
+	delown.HandleFunc("/owner/{id:[0-9]+}", ownerDeliver.Delete)
+
+	putown := rt.Methods(http.MethodPut).Subrouter()
+	putown.HandleFunc("/owner/{id:[0-9]+}", ownerDeliver.Update)
 
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 
