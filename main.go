@@ -73,6 +73,18 @@ func main() {
 	putown := rt.Methods(http.MethodPut).Subrouter()
 	putown.HandleFunc("/owner/{id:[0-9]+}", ownerDeliver.Update)
 
+	//Product Handler
+	productDeliver := deliver.NewProductDeliver(db, l)
+
+	ppost := rt.Methods(http.MethodPost).Subrouter()
+	ppost.HandleFunc("/product", productDeliver.Create)
+
+	pget := rt.Methods(http.MethodGet).Subrouter()
+	pget.HandleFunc("/product", productDeliver.FetchAll)
+
+	pdel := rt.Methods(http.MethodDelete).Subrouter()
+	pdel.HandleFunc("/product/{id:[0-9]+}", productDeliver.Delete)
+
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{

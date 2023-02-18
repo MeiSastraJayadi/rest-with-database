@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"io"
 	"net/http"
 
 	"github.com/MeiSastraJayadi/rest-with-datatabase/model"
@@ -26,7 +25,7 @@ func NewOwnerUsecase(logger hclog.Logger, db *sql.DB) *OwnerUsecase {
 	}
 }
 
-func (ou *OwnerUsecase) Fetch(w io.Writer, r *http.Request) (*model.Owners, error) {
+func (ou *OwnerUsecase) Fetch(r *http.Request) (*model.Owners, error) {
 	ctx := r.Context()
 	row, err := ou.db.Fetch(ctx, "owner")
 	defer row.Close()

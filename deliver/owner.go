@@ -25,7 +25,7 @@ func NewOwnerDeliver(db *sql.DB, logger hclog.Logger) *OwnerDeliver {
 
 func (del *OwnerDeliver) Fetch(w http.ResponseWriter, r *http.Request) {
 	del.logger.Info("/owner GET")
-	data, err := del.owner.Fetch(w, r)
+	data, err := del.owner.Fetch(r)
 	if err != nil {
 		del.logger.Error("Error when fetching data from owner", "error", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

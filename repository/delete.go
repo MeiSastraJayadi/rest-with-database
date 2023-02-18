@@ -23,6 +23,8 @@ func (db *UseDB) Delete(ctx context.Context, id string, table string) error {
 	switch table {
 	case "owner":
 		nameId = "owner_id"
+	case "product":
+		nameId = "product_id"
 	default:
 		nameId = "id"
 	}
