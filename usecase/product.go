@@ -70,7 +70,7 @@ func (pu *ProductUsecase) GetAll(r *http.Request) (*model.Products, error) {
 			category *int
 			owner    int
 			price    int
-			stock    int
+			stock    *int
 			address  string
 			phone    string
 		)
@@ -121,4 +121,23 @@ func (pu *ProductUsecase) GetAll(r *http.Request) (*model.Products, error) {
 		allProduct = make(model.Products, 0)
 	}
 	return &allProduct, nil
+}
+
+func (pu *ProductUsecase) Update(r *http.Request) error {
+	vr := mux.Vars(r)
+	id := vr["id"]
+	ctx := r.Context()
+	ctx = context.WithValue(ctx, "id", id)
+	data := &model.Product{}
+	err := FromJSON(r.Body, data)
+	if err != nil {
+		return err
+	}
+	pu.logger.Info("Data", data)
+	ctx = context.WithValue(ctx, repository.ContextValue{}, data)
+	err = pu.db.Update(ctx, "product")
+	if err != nil {
+		return err
+	}
+	return nil
 }

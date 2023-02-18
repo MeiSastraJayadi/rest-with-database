@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/MeiSastraJayadi/rest-with-datatabase/model"
 )
@@ -67,10 +68,68 @@ func (db *UseDB) updateOwner(ctx context.Context) error {
 	return nil
 }
 
+func (db *UseDB) updateProduct(ctx context.Context) error {
+	data := ctx.Value(ContextValue{}).(*model.Product)
+	result, resErr := db.FetchByID(ctx, "product")
+	if !result.Next() {
+		return errors.New(NotFoundError)
+	}
+	defer result.Close()
+	if resErr != nil {
+		return resErr
+	}
+	id := ctx.Value("id")
+	q := fmt.Sprintf("UPDATE product SET ")
+	newMap := make(map[string]interface{})
+	if data.Name != "" {
+		newMap["product_name"] = data.Name
+	}
+	if data.Category != nil {
+		newMap["category"] = *data.Category
+	}
+	if data.Owner != 0 {
+		newMap["product_owner"] = data.Owner
+	}
+	if data.Price != 0 {
+		newMap["product_price"] = data.Price
+	}
+
+	if data.Stock != nil {
+		newMap["stock"] = *data.Stock
+	}
+
+	i := 0
+	for key, value := range newMap {
+		if len(newMap)-1 > i {
+			if key == "product_name" {
+				q += fmt.Sprintf("%s = '%s', ", key, value.(string))
+				i++
+			} else {
+				q += fmt.Sprintf("%s = '%s', ", key, strconv.FormatInt(int64(value.(int)), 10))
+				i++
+			}
+		} else {
+			if key == "product_name" {
+				q += fmt.Sprintf("%s = '%s' ", key, value.(string))
+			} else {
+				q += fmt.Sprintf("%s = '%s' ", key, strconv.FormatInt(int64(value.(int)), 10))
+			}
+		}
+	}
+	q += fmt.Sprintf("WHERE product_id = %s", id)
+	_, err := db.db.ExecContext(ctx, q)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (db *UseDB) Update(ctx context.Context, table string) error {
 	switch table {
 	case "owner":
 		return db.updateOwner(ctx)
+	case "product":
+		return db.updateProduct(ctx)
 	default:
 		return db.updateCategory(ctx)
 	}

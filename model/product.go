@@ -6,7 +6,7 @@ type Product struct {
 	Category *int   `json:"category"`
 	Owner    int    `json:"product_owner"`
 	Price    int    `json:"product_price"`
-	Stock    int    `json:"stock"`
+	Stock    *int   `json:"stock"`
 }
 
 type ProductJSON struct {
@@ -15,12 +15,12 @@ type ProductJSON struct {
 	Category *Category `json:"category"`
 	Owner    *Owner    `json:"product_owner"`
 	Price    int       `json:"product_price"`
-	Stock    int       `json:"stock"`
+	Stock    *int      `json:"stock"`
 }
 
 type Products []*ProductJSON
 
-func NewProduct(id int, name string, category *int, owner int, price int, stock int) *Product {
+func NewProduct(id int, name string, category *int, owner int, price int, stock *int) *Product {
 	return &Product{
 		Id:       id,
 		Name:     name,

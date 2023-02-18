@@ -31,6 +31,8 @@ func (db *UseDB) FetchByID(ctx context.Context, table string) (*sql.Rows, error)
 	switch table {
 	case "owner":
 		nameId = "owner_id"
+	case "product":
+		nameId = "product_id"
 	default:
 		nameId = "id"
 	}

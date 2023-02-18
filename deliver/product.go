@@ -50,6 +50,20 @@ func (pd *ProductDeliver) FetchAll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (pd *ProductDeliver) Update(w http.ResponseWriter, r *http.Request) {
+	vr := mux.Vars(r)
+	id := vr["id"]
+	path := fmt.Sprintf("/product/%s PUT", id)
+	pd.logger.Info(path)
+	err := pd.product.Update(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		pd.logger.Error("Failed to update data", "error", err.Error())
+		return
+	}
+
+}
+
 func (pd *ProductDeliver) Delete(w http.ResponseWriter, r *http.Request) {
 	vr := mux.Vars(r)
 	id := vr["id"]

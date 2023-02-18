@@ -85,6 +85,9 @@ func main() {
 	pdel := rt.Methods(http.MethodDelete).Subrouter()
 	pdel.HandleFunc("/product/{id:[0-9]+}", productDeliver.Delete)
 
+	pput := rt.Methods(http.MethodPut, http.MethodPatch).Subrouter()
+	pput.HandleFunc("/product/{id:[0-9]+}", productDeliver.Update)
+
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{
