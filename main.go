@@ -16,6 +16,7 @@ import (
 	"github.com/nicholasjackson/env"
 )
 
+
 var Address = env.String("ADDRESS", false, "localhost:9090", "Port Address")
 var connection = env.String("CONNECTION", false, "root:@tcp(localhost:3306)/golang-db", "Connection to database")
 var driver = env.String("DRIVER", false, "mysql", "Use mysql driver")
@@ -87,6 +88,7 @@ func main() {
 
 	pput := rt.Methods(http.MethodPut, http.MethodPatch).Subrouter()
 	pput.HandleFunc("/product/{id:[0-9]+}", productDeliver.Update)
+  
 
 	//Consument Handler
 	consumentHandler := deliver.NewConsumentDeliver(db, l)
