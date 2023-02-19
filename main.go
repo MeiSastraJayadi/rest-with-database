@@ -88,6 +88,7 @@ func main() {
 	pput := rt.Methods(http.MethodPut, http.MethodPatch).Subrouter()
 	pput.HandleFunc("/product/{id:[0-9]+}", productDeliver.Update)
 
+
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{
