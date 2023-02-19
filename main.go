@@ -104,6 +104,14 @@ func main() {
 	conput := rt.Methods(http.MethodPut).Subrouter()
 	conput.HandleFunc("/consument/{id:[0-9]+}", consumentHandler.Update)
 
+  //Transaction Router
+  transactionDeliver := deliver.NewTransactionDeliver(db, l)
+  transget := rt.Methods(http.MethodGet).Subrouter()
+  transget.HandleFunc("/transaction", transactionDeliver.FetchAll)
+
+  transpost := rt.Methods(http.MethodPost).Subrouter()
+  transpost.HandleFunc("/transaction", transactionDeliver.Create)
+
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{
