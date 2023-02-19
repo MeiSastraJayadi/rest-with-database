@@ -88,6 +88,20 @@ func main() {
 	pput := rt.Methods(http.MethodPut, http.MethodPatch).Subrouter()
 	pput.HandleFunc("/product/{id:[0-9]+}", productDeliver.Update)
 
+	//Consument Handler
+	consumentHandler := deliver.NewConsumentDeliver(db, l)
+	conpost := rt.Methods(http.MethodPost).Subrouter()
+	conpost.HandleFunc("/consument", consumentHandler.Create)
+
+	conget := rt.Methods(http.MethodGet).Subrouter()
+	conget.HandleFunc("/consument", consumentHandler.Fetch)
+
+	condel := rt.Methods(http.MethodDelete).Subrouter()
+	condel.HandleFunc("/consument/{id:[0-9]+}", consumentHandler.Delete)
+
+	conput := rt.Methods(http.MethodPut).Subrouter()
+	conput.HandleFunc("/consument/{id:[0-9]+}", consumentHandler.Update)
+
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{
