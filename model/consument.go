@@ -22,6 +22,7 @@ func (cs *Consuments) Length() int {
 	return len(*cs)
 }
 
+
 func (c *Consument) GetName() string {
 	return c.Name
 }
