@@ -27,6 +27,8 @@ func (db *UseDB) Delete(ctx context.Context, id string, table string) error {
 		nameId = "product_id"
 	case "consument":
 		nameId = "consument_id"
+  case "transaction_table" : 
+    nameId = "transaction_id"
 	default:
 		nameId = "id"
 	}

@@ -2,9 +2,11 @@ package deliver
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/MeiSastraJayadi/rest-with-datatabase/usecase"
+	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
 )
 
@@ -27,6 +29,19 @@ func (tr *TransactionDeliver) Create(w http.ResponseWriter, r *http.Request) {
   if err != nil {
     http.Error(w, "Failed to fetch data from table transaction", http.StatusInternalServerError)
     tr.logger.Error("Failed to fetch data from table transaction", "error", err.Error())
+    return
+  }
+}
+
+func (tr *TransactionDeliver) Delete(w http.ResponseWriter, r *http.Request) {
+  vr := mux.Vars(r)
+  id := vr["id"]
+  path := fmt.Sprintf("/transaction/%s DELETE", id)
+  tr.logger.Info(path)
+  err := tr.transaction.Delete(r)
+  if err != nil {
+    http.Error(w, "Failed to delete data from table transaction", http.StatusInternalServerError)
+    tr.logger.Error("Failed to delete data from table transaction", "error", err.Error())
     return
   }
 }

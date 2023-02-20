@@ -7,6 +7,7 @@ import (
 
 	"github.com/MeiSastraJayadi/rest-with-datatabase/model"
 	"github.com/MeiSastraJayadi/rest-with-datatabase/repository"
+	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
 )
 
@@ -32,6 +33,17 @@ func (tu *TransactionUsecase) Create(r *http.Request) error {
   ctx := r.Context()
   ctx = context.WithValue(ctx, repository.ContextValue{}, data)
   err = tu.db.CreateTransaction(ctx, "transaction_table")
+  if err != nil {
+    return err
+  }
+  return nil
+}
+
+func (tr *TransactionUsecase) Delete(r *http.Request) error {
+  vr := mux.Vars(r)
+  ctx := r.Context()
+  id := vr["id"]
+  err := tr.db.Delete(ctx, id, "transaction_table")
   if err != nil {
     return err
   }

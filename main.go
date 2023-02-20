@@ -112,6 +112,9 @@ func main() {
   transpost := rt.Methods(http.MethodPost).Subrouter()
   transpost.HandleFunc("/transaction", transactionDeliver.Create)
 
+  transdel := rt.Methods(http.MethodDelete).Subrouter()
+  transdel.HandleFunc("/transaction/{id:[0-9]+}", transactionDeliver.Delete)
+
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{
