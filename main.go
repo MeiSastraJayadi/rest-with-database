@@ -16,6 +16,7 @@ import (
 	"github.com/nicholasjackson/env"
 )
 
+
 var Address = env.String("ADDRESS", false, "localhost:9090", "Port Address")
 var connection = env.String("CONNECTION", false, "root:@tcp(localhost:3306)/golang-db", "Connection to database")
 var driver = env.String("DRIVER", false, "mysql", "Use mysql driver")
@@ -44,6 +45,7 @@ func main() {
 		os.Exit(1)
 	}
 	categoryDeliver := deliver.NewCategoryDeliver(db, l)
+	ownerDeliver := deliver.NewOwnerDeliver(db, l)
 
 	rt := mux.NewRouter()
 	//Category Handler
@@ -58,6 +60,61 @@ func main() {
 
 	cput := rt.Methods(http.MethodPut).Subrouter()
 	cput.HandleFunc("/category/{id:[0-9]+}", categoryDeliver.Update)
+
+	//Owner Handler
+	og := rt.Methods(http.MethodGet).Subrouter()
+	og.HandleFunc("/owner", ownerDeliver.Fetch)
+
+	opost := rt.Methods(http.MethodPost).Subrouter()
+	opost.HandleFunc("/owner", ownerDeliver.Create)
+
+	delown := rt.Methods(http.MethodDelete).Subrouter()
+	delown.HandleFunc("/owner/{id:[0-9]+}", ownerDeliver.Delete)
+
+	putown := rt.Methods(http.MethodPut).Subrouter()
+	putown.HandleFunc("/owner/{id:[0-9]+}", ownerDeliver.Update)
+
+	//Product Handler
+	productDeliver := deliver.NewProductDeliver(db, l)
+
+	ppost := rt.Methods(http.MethodPost).Subrouter()
+	ppost.HandleFunc("/product", productDeliver.Create)
+
+	pget := rt.Methods(http.MethodGet).Subrouter()
+	pget.HandleFunc("/product", productDeliver.FetchAll)
+
+	pdel := rt.Methods(http.MethodDelete).Subrouter()
+	pdel.HandleFunc("/product/{id:[0-9]+}", productDeliver.Delete)
+
+	pput := rt.Methods(http.MethodPut, http.MethodPatch).Subrouter()
+	pput.HandleFunc("/product/{id:[0-9]+}", productDeliver.Update)
+  
+
+	//Consument Handler
+	consumentHandler := deliver.NewConsumentDeliver(db, l)
+	conpost := rt.Methods(http.MethodPost).Subrouter()
+	conpost.HandleFunc("/consument", consumentHandler.Create)
+
+	conget := rt.Methods(http.MethodGet).Subrouter()
+	conget.HandleFunc("/consument", consumentHandler.Fetch)
+
+	condel := rt.Methods(http.MethodDelete).Subrouter()
+	condel.HandleFunc("/consument/{id:[0-9]+}", consumentHandler.Delete)
+
+	conput := rt.Methods(http.MethodPut).Subrouter()
+	conput.HandleFunc("/consument/{id:[0-9]+}", consumentHandler.Update)
+
+  //Transaction Router
+  transactionDeliver := deliver.NewTransactionDeliver(db, l)
+  transget := rt.Methods(http.MethodGet).Subrouter()
+  transget.HandleFunc("/transaction", transactionDeliver.FetchAll)
+
+  transpost := rt.Methods(http.MethodPost).Subrouter()
+  transpost.HandleFunc("/transaction", transactionDeliver.Create)
+
+  transdel := rt.Methods(http.MethodDelete).Subrouter()
+  transdel.HandleFunc("/transaction/{id:[0-9]+}", transactionDeliver.Delete)
+
 
 	cors := gorillahandler.CORS(gorillahandler.AllowedOrigins([]string{"*"}))
 

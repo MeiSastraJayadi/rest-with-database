@@ -50,6 +50,10 @@ func (c *CategoryUsecase) Fetch(w io.Writer, r *http.Request) (*appmodel.Categor
 		categories = append(categories, category)
 	}
 
+	if categories == nil {
+		categories = make(model.Categories, 0)
+	}
+
 	return &categories, nil
 }
 
